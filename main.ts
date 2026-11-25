@@ -13,7 +13,7 @@
 // whitespace. The gate mirrors the sealed scorer's rules, so what passes
 // here is what gets judged.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const ENTRY =
   "My smart fridge's firmware update turned ice into a subscription: one free cube a day, then a pop-up selling Ice Pro for $4.99 a month.";
@@ -35,6 +35,12 @@ function main(): void {
   validateEntry(ENTRY);
   mkdirSync("/output", { recursive: true });
   writeFileSync("/output/entry.txt", ENTRY, "utf8");
+  // Read-back: the grader reads exactly these bytes, so confirm the write
+  // landed byte-identical before reporting success.
+  const written = readFileSync("/output/entry.txt", "utf8");
+  if (written !== ENTRY) {
+    throw new Error("entry.txt does not match the validated entry");
+  }
 }
 
 main();
